@@ -3,12 +3,13 @@ import struct
 from ._binary_codec import encode_value, decode_value
 from ._util import clean_empty_subcollections
 import os
+from typing import Callable
 
 DEFAULT_DIR = "./.pixiedb_collections"  # データ保存ディレクトリ（固定）
 
 class Document:
-    def __init__(self, document_id=None, data=None):
-        self.id = document_id or str(uuid.uuid4())
+    def __init__(self, doc_id=None, data=None):
+        self.id = doc_id or str(uuid.uuid4())
         self.data = data or {}
         self.subcollections = {}
 
@@ -29,6 +30,7 @@ class Document:
     def to_dict(self):
         '''Documentを`dict`に展開'''
         return {
+            "id":self.id,
             "data": self.data,
             "subcollections": {name: col.to_list() for name, col in self.subcollections.items()}
         }
@@ -68,6 +70,43 @@ class Collection:
     def add_document(self, document):
         self.documents.append(document)
         return self #メソッドチェーン可能に
+
+    def get_documents(self, condition: Callable[[Document], bool]=lambda doc: True):
+        """
+        ### 条件に一致するドキュメントを取得
+        arg: condition (Callable [ [ Document ], bool ], optional): 各ドキュメントを受け取り、条件を判定して真偽値を返す関数
+
+        return: `list[Document]`: 条件に一致するドキュメントのリスト
+        """
+        return [doc for doc in self.documents if condition(doc)]
+
+    def get_document_by_id(self, doc_id: str):
+        """指定IDのドキュメントを取得（なければNone）"""
+        for doc in self.documents:
+            if doc.id == doc_id:
+                return doc
+        return None
+
+    def find_first(self, condition):
+        """
+        ### 条件に一致するドキュメントの最初の一つ目を取得
+        arg: condition (Callable [ [ Document ], bool ], optional): 各ドキュメントを受け取り、条件を判定して真偽値を返す関数
+
+        return: `Document` or `None`: 条件に一致する最初のドキュメント
+        """
+        docs = self.get_documents(condition=condition)
+        if docs:
+            return docs[0]
+        return None
+
+    def has_document(self, condition):
+        """
+        ### 条件に一致するドキュメントの存在確認
+        arg: condition (Callable [ [ Document ], bool ], optional): 各ドキュメントを受け取り、条件を判定して真偽値を返す関数
+
+        return: `bool`: 一つでも存在すればTrue
+        """
+        return any(condition(doc) for doc in self.documents)
 
     def to_bytes(self):
         result = struct.pack('I', len(self.documents))
