@@ -5,7 +5,7 @@ Firebase Firestoreにインスパイアされ、ローカルファイルに階�
 
 ---
 
-## 📂 データの保存先
+## データの保存先
 コレクションデータは、**プロジェクト内の固定ディレクトリ**に保存されます：
 
 ```
@@ -17,33 +17,49 @@ Firebase Firestoreにインスパイアされ、ローカルファイルに階�
 
 ---
 
-## 📝 基本的な使い方
+## 基本的な使い方
 
 ### ① データの作成・保存（ルートコレクションのみ）
+
 ```python
 from pixiedb import Collection, Document
 
 # コレクションとドキュメントを作成
 users = Collection("users")
-doc = Document({"name": "Alice", "age": 30})
+doc = Document(data={"name": "Pixiel", "gender": "female"})
 users.add_document(doc)
 
 # サブコレクションも追加可能
 logs = Collection("logs")
-logs.add_document(Document({"action": "login"}))
+logs.add_document(Document(data={"action": "login"}))
 doc.add_subcollection(logs)
+
+# メソッドチェーンで記述も可能
+users.add_document(
+    Document(data={'name': 'mini-pix', 'gender': 'female'})
+).add_document(
+    Document(data={'name': 'petit-pix', 'gender': 'female'})
+)
 
 # ルートコレクションを保存（サブコレクションも自動保存）
 users.save()  # ./pixiedb_collections に保存される
+```
+
+```text
+Traceback (most recent call last):
+  File "/var/folders/zw/x3352bps5sd3dvqdh2v5qdg80000gn/T/mdlab/mdlab.py", line 7, in <module>
+    from pixiedb import Collection, Document
+ModuleNotFoundError: No module named 'pixiedb'
 ```
 
 ---
 
 ### ② データの読み込み（コレクション単位）
 
-#### ✅ 同名のコレクションをすべて取得
+#### > 同名のコレクションをすべて取得
+
 ```python
-from pixiedb.collections import Collections
+from pixiedb import Collections
 
 users_collections = Collections.find_all_by_name("users")
 for col in users_collections:
@@ -52,15 +68,30 @@ for col in users_collections:
         print(doc.data)
 ```
 
-#### ✅ 特定のcollection_idでコレクションを取得
+```text
+Traceback (most recent call last):
+  File "/var/folders/zw/x3352bps5sd3dvqdh2v5qdg80000gn/T/mdlab/mdlab.py", line 7, in <module>
+    from pixiedb import Collection, Document
+ModuleNotFoundError: No module named 'pixiedb'
+```
+
+#### > 特定のcollection_idでコレクションを取得
+
 ```python
 target = Collections.get_by_id("users", "abc123")  # IDはファイル名の先頭に記載
 print(target.to_list())
 ```
 
+```text
+Traceback (most recent call last):
+  File "/var/folders/zw/x3352bps5sd3dvqdh2v5qdg80000gn/T/mdlab/mdlab.py", line 7, in <module>
+    from pixiedb import Collection, Document
+ModuleNotFoundError: No module named 'pixiedb'
+```
+
 ---
 
-## 💾 保存時の注意
+## 保存時の注意
 - **サブコレクションは自動保存対象**です。個別保存は不要＆禁止です。
 - ルートコレクションだけが `.save()` 可能です。
 - 保存ファイル名は自動で生成され、**collection_id** と **コレクション名** が含まれます：
@@ -70,7 +101,7 @@ abc123_users.bin
 
 ---
 
-## ✅ 設計のポイント
+## 設計のポイント
 - **ツリー構造のデータ**をシンプルにローカルで管理
 - バイナリ形式で高速＆コンパクト
 - Firestoreのような**サブコレクション構造**を簡単に再現
@@ -78,12 +109,12 @@ abc123_users.bin
 
 ---
 
-## 🔧 今後の拡張に備えて
-- 将来的に**フィルタ付き読み込み**などにも拡張しやすい設計です。
-- ファイル保存先は柔軟に変更可能です。
+## 今後の拡張に備えて
+- 将来的に**フィルタ付き読み込み**などにも拡張予定。
+- ファイル保存先は柔軟に変更可能。
 
 ---
 
-## ✅ まとめ
+## まとめ
 PixieDBは「**軽量・シンプル・直感的**」を重視したローカルDBです。  
-簡単なツールやアプリケーションに最適です。
+簡単なツールやアプリケーションに使用できます。
