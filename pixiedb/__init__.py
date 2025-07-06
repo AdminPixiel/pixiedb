@@ -142,7 +142,7 @@ class Collection:
         base_dir = directory or DEFAULT_DIR
         if self._parent is not None:
             raise RuntimeError("サブコレクションの保存は禁止されています。ルートコレクションのみ保存可能です。")
-        filename = f"{self.collection_id}_{self.name}.bin"
+        filename = f"{self.id}_{self.name}.bin"
         filepath = f"{base_dir}/{filename}"
         with open(filepath, 'wb') as f:
             f.write(self.to_bytes())
@@ -158,7 +158,7 @@ class Collection:
         basename = filename.split('/')[-1].replace('.bin', '')
         parts = basename.split('_', 1)
         if len(parts) == 2:
-            collection.collection_id, collection.name = parts
+            collection.id, collection.name = parts
         collection._parent = None  # ルートコレクションとして読み込み
         return collection
 
