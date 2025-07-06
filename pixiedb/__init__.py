@@ -4,10 +4,11 @@ from ._binary_codec import encode_value, decode_value
 from ._util import clean_empty_subcollections
 import os
 
-DEFAULT_DIR = "./pixiedb_collections"  # データ保存ディレクトリ（固定）
+DEFAULT_DIR = "./.pixiedb_collections"  # データ保存ディレクトリ（固定）
 
 class Document:
-    def __init__(self, data=None):
+    def __init__(self, document_id=None, data=None):
+        self.id = document_id or str(uuid.uuid4())
         self.data = data or {}
         self.subcollections = {}
 
@@ -60,7 +61,7 @@ class Document:
 class Collection:
     def __init__(self, name, collection_id=None):
         self.name = name
-        self.collection_id = collection_id or str(uuid.uuid4())
+        self.id = collection_id or str(uuid.uuid4())
         self.documents = []
         self._parent = None  # 親を持たない（ルート）
 
@@ -148,7 +149,7 @@ class Collections:
         """特定のcollection_idを持つコレクションを取得"""
         collections = Collections._load_collections(collection_name, base_dir)
         for col in collections:
-            if col.collection_id == collection_id:
+            if col.id == collection_id:
                 return col
         raise ValueError(f"Collection with ID '{collection_id}' not found in '{collection_name}'")
     
