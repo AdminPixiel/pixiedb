@@ -5,7 +5,7 @@ from ._util import clean_empty_subcollections
 import os
 from typing import Callable
 
-DEFAULT_DIR = "./.pixiedb_collections"  # データ保存ディレクトリ（固定）
+DEFAULT_DIR = "./pixiedb_collections"  # データ保存ディレクトリ（固定）
 
 class Document:
     def __init__(self, doc_id=None, data=None):
@@ -19,18 +19,20 @@ class Document:
         return self #メソッドチェーン可能に
 
     def to_bytes(self):
+        encoded_id = self.id.encode('utf-8')
+        id_bytes = struct.pack('I', len(encoded_id)) + encoded_id  # IDの長さ + ID本体
         encoded_data = encode_value(self.data)
         sub_bytes = struct.pack('I', len(self.subcollections))
         for name, collection in self.subcollections.items():
             encoded_name = name.encode('utf-8')
             sub_bytes += struct.pack('I', len(encoded_name)) + encoded_name
             sub_bytes += collection.to_bytes()
-        return encoded_data + sub_bytes
+        return id_bytes + encoded_data + sub_bytes
 
     def to_dict(self):
         '''Documentを`dict`に展開'''
         return {
-            "id":self.id,
+            "id": self.id,
             "data": self.data,
             "subcollections": {name: col.to_list() for name, col in self.subcollections.items()}
         }
@@ -44,9 +46,14 @@ class Document:
     @staticmethod
     def from_bytes(data_bytes):
         offset = 0
+        id_len = struct.unpack('I', data_bytes[offset:offset+4])[0]
+        offset += 4
+        doc_id = data_bytes[offset: offset + id_len]
+        offset += id_len
+
         data, used = decode_value(data_bytes[offset:])
         offset += used
-        doc = Document(data)
+        doc = Document(doc_id=doc_id,data=data)
         sub_collections_count = struct.unpack('I', data_bytes[offset:offset+4])[0]
         offset += 4
         for _ in range(sub_collections_count):
@@ -144,6 +151,7 @@ class Collection:
             raise RuntimeError("サブコレクションの保存は禁止されています。ルートコレクションのみ保存可能です。")
         filename = f"{self.id}_{self.name}.bin"
         filepath = f"{base_dir}/{filename}"
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'wb') as f:
             f.write(self.to_bytes())
         print(f"Saved to {filepath}")
@@ -170,6 +178,7 @@ class Collections:
     def _load_collections(collection_name, base_dir=None):
         """内部共通：同名コレクションをすべて読み込む"""
         base_dir = base_dir or DEFAULT_DIR
+        os.makedirs(base_dir, exist_ok=True)
         collections = []
         for filename in os.listdir(base_dir):
             if filename.endswith(f"_{collection_name}.bin"):
