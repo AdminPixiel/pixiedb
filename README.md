@@ -45,13 +45,6 @@ users.add_document(
 users.save()  # ./pixiedb_collections に保存される
 ```
 
-```text
-Traceback (most recent call last):
-  File "/var/folders/zw/x3352bps5sd3dvqdh2v5qdg80000gn/T/mdlab/mdlab.py", line 7, in <module>
-    from pixiedb import Collection, Document
-ModuleNotFoundError: No module named 'pixiedb'
-```
-
 ---
 
 ### ② データの読み込み（コレクション単位）
@@ -68,25 +61,11 @@ for col in users_collections:
         print(doc.data)
 ```
 
-```text
-Traceback (most recent call last):
-  File "/var/folders/zw/x3352bps5sd3dvqdh2v5qdg80000gn/T/mdlab/mdlab.py", line 7, in <module>
-    from pixiedb import Collection, Document
-ModuleNotFoundError: No module named 'pixiedb'
-```
-
 #### > 特定のcollection_idでコレクションを取得
 
 ```python
 target = Collections.get_by_id("users", "abc123")  # IDはファイル名の先頭に記載
 print(target.to_list())
-```
-
-```text
-Traceback (most recent call last):
-  File "/var/folders/zw/x3352bps5sd3dvqdh2v5qdg80000gn/T/mdlab/mdlab.py", line 7, in <module>
-    from pixiedb import Collection, Document
-ModuleNotFoundError: No module named 'pixiedb'
 ```
 
 ---
