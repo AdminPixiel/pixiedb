@@ -1,0 +1,13 @@
+# Pythonキャッシュ
+__pycache__/
+*.pyc
+
+# 開発用テストスクリプト
+dev_test_*.py
+
+# PixieDBデータ保存用
+pixiedb_collections/
+
+# 開発中のメモ、ログ
+*.log
+*.tmp
