@@ -1,7 +1,7 @@
 # PixieDB - Simple Binary NoSQL Database
 
 PixieDBは、シンプルなバイナリ形式のローカルNoSQLデータベースです。  
-Firebase Firestoreにインスパイアされ、ローカルファイルに階層的なデータを効率よく保存・読み書きできます。
+ローカルファイルに階層的なデータを効率よく保存・読み書きできます。
 
 ---
 
